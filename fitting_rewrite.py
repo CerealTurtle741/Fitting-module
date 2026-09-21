@@ -12,16 +12,49 @@
 import numpy as np
 from scipy.optimize import least_squares
 from odrpack import odr_fit
+from time import time
+
+def straight_line_model(params, x_data) -> np.ndarray[float]:
+    '''
+    y = intercept + x_data * gradient
+    '''
+    return params[0] + x_data * params[1]
+
+def straight_line_diff(params, x_data) -> float:
+    '''
+    dy/dx = gradient
+    '''
+    return params[1]
+
+def minimise(params, x_data, y_data, x_error, y_error, model, diff) -> np.ndarray[float]:
+    '''
+    Calculating the residuals of the data (vertical distance between the data point and its predicted value)
+    Used for least squares fitting 
+    '''
+    y_model: np.ndarray[float] = model(params, x_data)
+    y_model_diff: float | np.ndarray[float] = diff(params, x_data)
+    # x error is included by weighting it with the derivative of the model
+    y_diff_total: np.ndarray[float] = np.sqrt(y_error**2 + x_error**2 * y_model_diff**2)
+    # if y_diff_total is 0 maybe from no errors recorded replace it with one to stop divide by zero errors
+    y_diff_total = np.where(y_diff_total == 0, 1, y_diff_total)
+    return (y_data - y_model) / y_diff_total
+
+
 
 class Fit:
-    '''
-    21/09/26:
-    Class to perform a fit of a set of data
-    The aim is to use scipys least_squares function to find the parameters, errors and chi2 of a set of data
-    Least squares can be used for two cases when the errors on x are insignificant (small) compared to y or when no errors are given
-    When the errors on x are significant an odr fit should be used instead
-    The fit will be able to have both methods being able to be selected and will have an auto mode where the x errors will be compared to the y errors to determine a better fit 
-    -- system to be created later 
-    '''
-    def __init__(self) -> None:
-        pass
+    def __init__(
+            self,
+            x_data, y_data,
+            x_error = None, y_error = None,
+            model: function = straight_line_model, diff: function = straight_line_diff,
+            fmin: function = minimise,
+            method: str = 'ols') -> None:
+        # Raw data stored in global variables 
+        self.raw_x_data = x_data
+        self.raw_y_data = y_data
+        self.raw_x_error = x_error
+        self.raw_y_error = y_error
+        self.model = model
+        self.diff = diff
+        self.fmin = fmin
+        self.method = method

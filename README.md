@@ -1,2 +1,14 @@
 # Fitting-module
 A class made for fitting data
+
+21/09/26:
+Class to perform a fit of a set of data
+The aim is to use scipys least_squares function to find the parameters, errors and chi2 of a set of data
+Least squares can be used for two cases when the errors on x are insignificant (small) compared to y or when no errors are given
+When the errors on x are significant an odr fit should be used instead
+The fit will be able to have both methods being able to be selected and will have an auto mode where the x errors will be compared to the y errors to determine a better fit 
+-- system to be created later 
+
+to start making the class all the variables will be turned into global variables to be used in all functions
+
+Firstly a base straight line function was created and a function to find the residuals 
