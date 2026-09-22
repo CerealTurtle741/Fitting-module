@@ -2,6 +2,7 @@
 A class made for fitting data
 
 21/09/26:
+1st commit:
 Class to perform a fit of a set of data
 The aim is to use scipys least_squares function to find the parameters, errors and chi2 of a set of data
 Least squares can be used for two cases when the errors on x are insignificant (small) compared to y or when no errors are given
@@ -14,7 +15,15 @@ to start making the class all the variables will be turned into global variables
 Firstly a base straight line function was created and a function to find the residuals 
 
 22/09/26
+2nd Commit
 Function to convert data to arrays created : True means failed
 Data restructured to be inside a dictionary
 Length checker added : True means failed
 Error converter added 
+
+3rd Commit
+Error message added to length check function
+Parameter check function
+Fixed type annotations
+error negativity check added : True means failed
+Function to check if the model is passed the right amount of parameters added : True means failed
