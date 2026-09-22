@@ -44,17 +44,68 @@ def minimise(params, x_data, y_data, x_error, y_error, model, diff) -> np.ndarra
 class Fit:
     def __init__(
             self,
-            x_data, y_data,
+            x_data, y_data, initial_params,
             x_error = None, y_error = None,
             model: function = straight_line_model, diff: function = straight_line_diff,
             fmin: function = minimise,
-            method: str = 'ols') -> None:
+            method: str = 'ols',
+            printer: bool=True) -> None:
         # Raw data stored in global variables 
-        self.raw_x_data = x_data
-        self.raw_y_data = y_data
-        self.raw_x_error = x_error
-        self.raw_y_error = y_error
-        self.model = model
-        self.diff = diff
-        self.fmin = fmin
-        self.method = method
+        self.raw_dataset: dict[str] = {'x_data': x_data,
+                                       'y_data': y_data,
+                                       'x_error': x_error,
+                                       'y_error': y_error,
+                                       'params': initial_params}
+        self.model: function = model
+        self.diff: function = diff
+        self.fmin: function = fmin
+        self.method: str = method
+        self.printer: bool = printer
+        
+
+        # Create variables to be used for fitting
+        self.dataset: dict[str, np.ndarray[float] | None] = {'x_data': None,
+                                                             'y_data': None,
+                                                             'x_error': None,
+                                                             'y_error': None,
+                                                             'params': None}
+    def _convert_data_to_arrays(self) -> bool:
+        '''
+        Self explanatory converting the data entries into numpy arrays 
+        np.asarray used as it doesnt put arrays into more arrays
+        WARNING Forces matrices into np.ndarray type if this becomes a problem later np.asanyarray preserves subclasses
+        True means it failed
+        If errors are none before converting returns a nan value BUT the raw dataset remains the same remember
+        '''
+        for data in self.dataset:
+            try:
+                self.dataset[data] = np.asarray(self.raw_dataset[data], dtype=float)
+            except (ValueError, TypeError) as e:
+                if self.printer:
+                    print(f'ERROR: {data} must contain only numbers - {e}')
+                return True
+        return False
+    def _convert_errors(self) -> None:
+        errors = ['x_error', 'y_error']
+        for error in errors:
+            if self.raw_dataset[error] is None:
+                self.dataset[error] = np.zeros_like(self.dataset['x_data'])
+            elif np.isscalar(self.raw_dataset):
+                self.dataset[error] = np.full_like(self.dataset['x_data'], self.raw_dataset[error], dtype=float)
+    def _length_check(self) -> bool:
+        '''
+        Check the length of the arrays matches each others
+        '''
+        if not (len(self.dataset['x_data']) == len(self.dataset['y_data']) == len(self.dataset['x_error']) == len(self.dataset['y_error'])):
+            return True
+        return False
+
+
+x=[1,2,3]
+y=[2,4,6]
+xerr=1
+yerr=None
+param=[0,2]
+fit=Fit(x,y,param,xerr,yerr)
+print(fit._convert_data_to_arrays())
+print(1 if fit.dataset['y_error'] is None else 0)

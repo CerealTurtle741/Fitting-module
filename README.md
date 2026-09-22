@@ -12,3 +12,9 @@ The fit will be able to have both methods being able to be selected and will hav
 to start making the class all the variables will be turned into global variables to be used in all functions
 
 Firstly a base straight line function was created and a function to find the residuals 
+
+22/09/26
+Function to convert data to arrays created : True means failed
+Data restructured to be inside a dictionary
+Length checker added : True means failed
+Error converter added 
