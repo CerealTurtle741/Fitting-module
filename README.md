@@ -28,8 +28,17 @@ Fixed type annotations
 error negativity check added : True means failed
 Function to check if the model is passed the right amount of parameters added : True means failed
 
+23/09/26
 4th Commit
 Full type annotations added some parts fixed with VS code inbuilt Fix function
 ndof (number of degrees of freedom) warning added
 Initial checks function added to put all checks into one place 
 NOTE: When using assert within the class do not use plain assert use assert isinstance(variable, type) to prevent errors from triggering due to truth values
+
+5th Commit
+Base ols function added
+assert bug fixed in _length_check and _ndof_warning
+BUG FIXES:
+error array handling put in own function
+params taken out of data array function and into its own function
+ndof calculator function added

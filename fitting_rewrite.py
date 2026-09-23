@@ -13,12 +13,13 @@
 
 
 import numpy as np
-from scipy.optimize import least_squares
+from scipy.optimize import least_squares 
 from odrpack import odr_fit
 from time import time
 from typing import Callable
-from numpy.typing import ArrayLike 
+from numpy.typing import ArrayLike
 from numpy import ndarray
+from numpy.linalg import LinAlgError
 
 def straight_line_model(params: ArrayLike, x_data: ArrayLike) -> ndarray:
     '''
@@ -66,29 +67,30 @@ class Fit:
                  model: Callable[[ArrayLike, ArrayLike], ndarray] = straight_line_model,
                  diff: Callable[[ArrayLike, ArrayLike], ndarray | float] = straight_line_diff,
                  fmin: Callable[..., ndarray] = minimise,
-                 method: str = 'ols',
                  printer: bool=True
                  ) -> None:
         # Raw data stored in global variables 
-        self.raw_dataset: dict[str, ArrayLike | None] = {'x_data': x_data,
-                            'y_data': y_data,
-                            'x_error': x_error,
-                            'y_error': y_error,
-                            'params': initial_params}
+        self.raw_dataset: dict[str, ArrayLike | None] = {
+            'x_data': x_data,
+            'y_data': y_data,
+            'x_error': x_error,
+            'y_error': y_error,
+            'params': initial_params
+            }
         self.model: Callable[[ArrayLike, ArrayLike], ndarray] = model
         self.diff: Callable[[ArrayLike, ArrayLike], float | ndarray] = diff
         self.fmin: Callable[..., ndarray] = fmin
-        self.method: str = method
         self.printer: bool = printer
-        self.data_arrays: list[str] = ['x_data', 'y_data', 'x_error', 'y_error']
-        self.errors: list[str] = ['x_error', 'y_error']
+
 
         # Create variables to be used for fitting
-        self.dataset: dict[str, None | ndarray] = {'x_data': None,
-                        'y_data': None,
-                        'x_error': None,
-                        'y_error': None,
-                        'params': None}
+        self.dataset: dict[str, None | ndarray] = {
+            'x_data': None,
+            'y_data': None,
+            'x_error': None,
+            'y_error': None,
+            'params': None
+            }
 
         # Create Values to be updated after checks
         self.npoints: None | int = None
@@ -98,8 +100,10 @@ class Fit:
         self.chi2: None | float = None
         self.params: None | ndarray = None
         self.param_errors: None | ndarray = None
+        self.label: None | str = None
 
-    def run(self):
+    def run(self, method: str = 'ols'):
+        start_time: float = time()
         if self._initial_checks():
             return self._failed_result()
 
@@ -111,28 +115,49 @@ class Fit:
         True means it failed
         If errors are none before converting returns a nan value BUT the raw dataset remains the same remember
         '''
-        for data in self.dataset:
+        for data in ['x_data', 'y_data']:
             try:
                 self.dataset[data] = np.asarray(self.raw_dataset[data], dtype=float)
             except (ValueError, TypeError) as e:
                 if self.printer:
                     print(f'ERROR: {data} must contain only numbers - {e}')
                 return True
+        return False
+    def _convert_errors_to_arrays(self) -> bool:
+        '''
+        convert errors into arrays of zeros if none or arrays full of a value if the only have one value
+        convert errors into array if array provided
+        '''
+        for error in ['x_error', 'y_error']:
+            if self.raw_dataset[error] is None:
+                self.dataset[error] = np.zeros_like(self.dataset['x_data'])
+            elif np.isscalar(self.raw_dataset[error]):
+                self.dataset[error] = np.full_like(self.dataset['x_data'], self.raw_dataset[error], dtype=float)
+            else:
+                try:
+                    self.dataset[error] = np.asarray(self.raw_dataset[error], dtype=float)
+                except (ValueError, TypeError) as e:
+                    if self.printer:
+                        print(f'ERROR: {error} must contain only numbers - {e}')
+                    return True
+        return False
+    def _convert_params_to_array(self) -> bool:
+        '''
+        convert initial parameters to an array
+        '''
+        try:
+            self.dataset['params'] = np.asarray(self.raw_dataset['params'], dtype=float)
+        except (ValueError, TypeError) as e:
+            if self.printer:
+                print(f'ERROR: Initial Paramters must contain only numbers - {e}')
+            return True
+        return False
+    def _ndof_calculator(self):
         assert isinstance(self.dataset['x_data'], ndarray)
         assert isinstance(self.dataset['params'], ndarray)
         self.npoints = len(self.dataset['x_data'])
         self.nparams = len(self.dataset['params'])
         self.ndof = self.npoints - self.nparams
-        return False
-    def _convert_errors(self) -> None:
-        '''
-        convert errors into arrays of zeros if none or arrays full of a value if the only have one value
-        '''
-        for error in self.errors:
-            if self.raw_dataset[error] is None:
-                self.dataset[error] = np.zeros_like(self.dataset['x_data'])
-            elif np.isscalar(self.raw_dataset[error]):
-                self.dataset[error] = np.full_like(self.dataset['x_data'], self.raw_dataset[error], dtype=float)
     def _length_check(self) -> bool:
         '''
         Check the length of the arrays matches each others
@@ -142,13 +167,21 @@ class Fit:
         assert isinstance(self.dataset['x_error'], ndarray)
         assert isinstance(self.dataset['y_error'], ndarray)
         assert isinstance(self.dataset['params'], ndarray)
-        if not (len(self.dataset['x_data']) == len(self.dataset['y_data']) == len(self.dataset['x_error']) == len(self.dataset['y_error'])):
+        try:
+            x_data_length = len(self.dataset['x_data'])
+            y_data_length = len(self.dataset['y_data'])
+            x_error_length = len(self.dataset['x_error'])
+            y_error_length = len(self.dataset['y_error'])
+        except Exception as e:
+            print(f'ERROR: cannot take length of dataset - {e}')
+            return True
+        if not (x_data_length == y_data_length == x_error_length == y_error_length):
             if self.printer:
                 print('ERROR: Data arrays not the same length')
-                for data in self.data_arrays:
-                    data_array = self.dataset[data]
-                    assert data_array is ndarray
-                    print(f'Length of {data} array: {len(data_array)}')
+                print(f'X Data : {x_data_length}')
+                print(f'Y Data : {y_data_length}')
+                print(f'X Error : {x_error_length}')
+                print(f'Y Error : {y_error_length}')
             return True
         return False
     def _parameter_check(self) -> bool:
@@ -168,7 +201,7 @@ class Fit:
         '''
         the errors cannot be negative otherwise it will break the fitting models 
         '''
-        for error in self.errors:
+        for error in ['x_error', 'y_error']:
             if np.any(self.dataset[error]) < 0:
                 if self.printer:
                     print(f'ERROR: {error} must not have negative values')
@@ -193,7 +226,7 @@ class Fit:
         Warns when the number of degrees of freedom is lower than three 
         when lower than three this signifys a bad fit
         '''
-        assert self.ndof is int
+        assert isinstance(self.ndof, int)
         if self.ndof < 3:
             if self.printer:
                 print('WARNING: Number of degrees of freedon is less than 3')
@@ -204,7 +237,11 @@ class Fit:
         '''
         if self._convert_data_to_arrays():
             return True
-        self._convert_errors()
+        if self._convert_errors_to_arrays():    
+            return True
+        if self._convert_params_to_array():
+            return True
+        self._ndof_calculator()
         if self._length_check():
             return True
         if self._parameter_check():
@@ -223,5 +260,34 @@ class Fit:
         self.chi2 = np.nan
         ## DO NOT REMOVE return self it WILL BREAK THE CODE
         return self
-
-        
+    def _ols_fit(self) -> bool:
+        '''
+        Basic OLS fitting function 
+        To be used when x errors are insignificant compared to the y errors
+        '''
+        assert isinstance(self.dataset['params'], ndarray)
+        result = least_squares(self.fmin, self.dataset['params'], args=(self.dataset['x_data'],
+                                                                        self.dataset['y_data'],
+                                                                        self.dataset['x_error'],
+                                                                        self.dataset['y_error'],
+                                                                        self.model,
+                                                                        self.diff))
+        self.label = 'OLS'
+        if not result.success:
+            return False
+        self.params = result.x
+        chi2 = np.sum(result.fun**2)
+        assert isinstance(self.ndof, int)
+        reduced_chi2: float = chi2 / self.ndof
+        self.chi2 = reduced_chi2
+        # converted to array for type annotations use
+        try:
+            jacobian: ndarray = np.asarray(result.jac)
+            covariance: ndarray = np.linalg.inv(jacobian.T @ jacobian)
+            self.param_errors = np.sqrt(np.diag(covariance))
+        except LinAlgError:
+            assert isinstance(self.nparams, int)
+            self.param_errors = np.zeros(self.nparams)
+            if self.printer:
+                print('ERROR: Parameter errors could not be calculated')
+        return True
