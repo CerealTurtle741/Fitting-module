@@ -106,6 +106,22 @@ class Fit:
         start_time: float = time()
         if self._initial_checks():
             return self._failed_result()
+        method_list = {'ols':self._ols_fit, 'odr':self._odr_fit}
+        if method.lower() not in method_list:
+            if self.printer:
+                print(f'ERROR: method = {method} is not a valid method')
+                print(f'Valid methods are {method_list}')
+            return self._failed_result()
+        self.success = method_list[method]()
+        end_time: float = time()
+        time_taken = end_time - start_time
+        if self.printer:
+            print(f'Method: {self.label}')
+            print(f'Time taken: {time_taken}')
+        if not self.success:
+            return self._failed_result
+        return self
+        
 
     def _convert_data_to_arrays(self) -> bool:
         '''
@@ -152,9 +168,8 @@ class Fit:
                 print(f'ERROR: Initial Paramters must contain only numbers - {e}')
             return True
         return False
-    def _ndof_calculator(self):
-        assert isinstance(self.dataset['x_data'], ndarray)
-        assert isinstance(self.dataset['params'], ndarray)
+    def _ndof_calculator(self) -> None:
+        assert isinstance(self.dataset['x_data'], ndarray) and isinstance(self.dataset['params'], ndarray)
         self.npoints = len(self.dataset['x_data'])
         self.nparams = len(self.dataset['params'])
         self.ndof = self.npoints - self.nparams
@@ -162,11 +177,7 @@ class Fit:
         '''
         Check the length of the arrays matches each others
         '''
-        assert isinstance(self.dataset['x_data'], ndarray)
-        assert isinstance(self.dataset['y_data'], ndarray)
-        assert isinstance(self.dataset['x_error'], ndarray)
-        assert isinstance(self.dataset['y_error'], ndarray)
-        assert isinstance(self.dataset['params'], ndarray)
+        assert isinstance(self.dataset['x_data'], ndarray) and isinstance(self.dataset['y_data'], ndarray) and isinstance(self.dataset['x_error'], ndarray) and isinstance(self.dataset['y_error'], ndarray) and isinstance(self.dataset['params'], ndarray)
         try:
             x_data_length = len(self.dataset['x_data'])
             y_data_length = len(self.dataset['y_data'])
@@ -189,8 +200,7 @@ class Fit:
         making sure there is enough data points for the number of parameters
         e.g. 3 for a linear relationship
         '''
-        assert isinstance(self.dataset['x_data'], ndarray)
-        assert isinstance(self.dataset['params'], ndarray)
+        assert isinstance(self.dataset['x_data'], ndarray) and isinstance(self.dataset['params'], ndarray)
         self.nparams = len(self.dataset['params'])
         if len(self.dataset['x_data']) < self.nparams + 1:
             if self.printer:
@@ -212,8 +222,7 @@ class Fit:
         Checks the number of parameters given matches the model function given 
         Can only check for models where not enough parameters are given 
         '''
-        assert isinstance(self.dataset['x_data'], ndarray)
-        assert isinstance(self.dataset['params'], ndarray)
+        assert isinstance(self.dataset['x_data'], ndarray) and isinstance(self.dataset['params'], ndarray)
         try:
             self.model(self.dataset['params'], self.dataset['x_data'])
         except Exception as e:
@@ -267,7 +276,7 @@ class Fit:
         To be used when x errors are insignificant compared to the y errors
         True means success
         '''
-        assert isinstance(self.dataset['params'], ndarray)
+        assert isinstance(self.dataset['params'], ndarray) and isinstance(self.ndof, int) and isinstance(self.nparams, int)
         result = least_squares(self.fmin, self.dataset['params'], args=(self.dataset['x_data'],
                                                                         self.dataset['y_data'],
                                                                         self.dataset['x_error'],
@@ -281,7 +290,6 @@ class Fit:
             return False
         self.params = result.x
         chi2 = np.sum(result.fun**2)
-        assert isinstance(self.ndof, int)
         reduced_chi2: float = chi2 / self.ndof
         self.chi2 = reduced_chi2
         # converted to array for type annotations use
@@ -290,7 +298,6 @@ class Fit:
             covariance: ndarray = np.linalg.inv(jacobian.T @ jacobian)
             self.param_errors = np.sqrt(np.diag(covariance))
         except LinAlgError:
-            assert isinstance(self.nparams, int)
             self.param_errors = np.zeros(self.nparams)
             if self.printer:
                 print('ERROR: Parameter errors could not be calculated')
@@ -305,11 +312,7 @@ class Fit:
         # Odr model uses x_data then params whereas least squares uses params then x_data so model is flipped
         def odr_model(x_data: ndarray, params: ndarray) -> ndarray:
             return self.model(params, x_data)
-        assert isinstance(self.dataset['x_error'], ndarray)
-        assert isinstance(self.dataset['y_error'], ndarray)
-        assert isinstance(self.dataset['y_data'], ndarray)
-        assert isinstance(self.dataset['x_data'], ndarray)
-        assert isinstance(self.dataset['params'], ndarray)
+        assert isinstance(self.dataset['x_data'], ndarray) and isinstance(self.dataset['y_data'], ndarray) and isinstance(self.dataset['x_error'], ndarray) and isinstance(self.dataset['y_error'], ndarray) and isinstance(self.dataset['params'], ndarray)
         x_weight: ndarray | None = 1/self.dataset['x_error']**2 if self.raw_dataset['x_error'] is not None else None
         y_weight: ndarray | None = 1/self.dataset['y_error']**2 if self.raw_dataset['y_error'] is not None else None
         sol = odr_fit(odr_model,
