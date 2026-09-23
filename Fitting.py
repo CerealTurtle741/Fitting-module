@@ -1,17 +1,3 @@
-# Rules
-## No ai to be used at all
-## no copy paste from old functions
-## only read the parts of the class fitting
-## read full thing of function fitting 
-## try to write comments about why a thing is being used 
-## each function try and write a docustring of what it is doing 
-## type annotations!!!!
-### Do not use Any as a type 
-### When using assert do not use a plain assert wrap it in assert isinstance(variable, type) to prevent errors from being triggered due to truth values
-## remember dictionaries are useful
-## focus solely on fitting not plotting
-
-
 import numpy as np
 from scipy.optimize import least_squares 
 from odrpack import odr_fit
@@ -387,4 +373,3 @@ class Fit:
             if self.printer:
                 print(f'ERROR: Failed to save figure - {e}')
             return
-
