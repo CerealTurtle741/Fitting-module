@@ -82,3 +82,7 @@ Added plot function
 
 9th Commit
 Save function added
+
+10th Commit
+basic printer stuff added to run
+name changed to Fitting
