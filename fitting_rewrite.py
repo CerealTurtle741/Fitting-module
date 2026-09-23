@@ -79,7 +79,6 @@ class Fit:
         self.fmin: Callable[..., ndarray] = fmin
         self.printer: bool = printer
 
-
         # Create variables to be used for fitting
         self.dataset: dict[str, None | ndarray] = {
             'x_data': None,
@@ -99,6 +98,10 @@ class Fit:
         self.param_errors: None | ndarray = None
         self.label: None | str = None
 
+        # Values for plotting
+        self.fig = None
+        self.ax = None
+    # Run function
     def run(self, method: str = 'ols'):
         self.method = method
         start_time: float = time()
@@ -329,17 +332,21 @@ class Fit:
         assert isinstance(self.ndof, int)
         self.chi2 = chi2 / self.ndof
         return True
-
     # Plot function
     def plot(self):
+        '''
+        Plot function for if the data has been successfully fitted 
+        '''
         if self.success is None:
             if self.printer:
                 print('ERROR: Data has not been fitted')
-            return 
+            return None, None
         if self.success is False:
             if self.printer:
                 print('ERROR: Fit Failed')
-            return 
+            return None, None
+        if self.printer:
+            print('Plot successfully produced')
         fig, ax = plt.subplots(figsize=(8,6))
         assert isinstance(self.dataset['x_data'], ndarray) and isinstance(self.dataset['y_data'], ndarray) and isinstance(self.dataset['x_error'], ndarray) and isinstance(self.dataset['y_error'], ndarray) and isinstance(self.params, ndarray)
         fmt = '.' if self.raw_dataset['x_error'] or self.raw_dataset['y_error'] is not None else 'o'
@@ -350,15 +357,31 @@ class Fit:
         ax.grid(linestyle='--', zorder=1)
         ax.legend()
         self.fig, self.ax = fig, ax
-        plt.show()
-        return self
+        # Remember to actually show the plot 
+        # plt.show() 
+        # dont call plt.show() in the function otherwise it prevents any changes from being made outside the function
+        # but you MUST remember to call it outside the function
+        return fig, ax
+    # Save function
+    def save(self, file_name: str, file_type: str = 'png'):
+        '''
+        save function for saving the figure produced by plot()
+        the file name must be inputted 
+        the file type can be changed but defaults to png 
+        '''
+        if self.fig is None:
+            if self.printer:
+                print('ERROR: Figure must be produced to save')
+                return
+        file: str = f'{file_name}.{file_type}'
+        try:
+            self.fig.savefig(file) # pyright: ignore[reportOptionalMemberAccess]
+            if self.printer:
+                print(f'File saved as: {file}')
+        except Exception as e:
+            if self.printer:
+                print(f'ERROR: Failed to save figure - {e}')
+            return
 
-x=[0.9,1.8,3.4,4.1,4.9]
-y=[2.3,4.1,5.7,8.2,9.5]
-dx=0.2
-dy=0.1
-p=[0,2]
-fit=Fit(x,y,p,dx,dy)
-fit.run()
-fit.plot()
+
 

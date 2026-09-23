@@ -78,4 +78,7 @@ Chi2:  37.2823543898539
 8th Commit
 Bug in run fixed - return _failed_result (returns the function) -> return _failed_result()
 Added plot function
-- lots of # ignore added as the problems are purely pylance not allowing unknown types
+- some # ignore added as the problems are purely pylance not allowing unknown types
+
+9th Commit
+Save function added
