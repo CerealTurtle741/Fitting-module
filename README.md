@@ -52,3 +52,9 @@ Fit(
 | ax | If plot has been called is the Axes of the successful plot |
 | dataset | A dictionary that stores all the data and params used by the function<br> Keys for the dictionary: ['x_data', 'y_data', 'x_error', 'y_error', 'params'] |
 | success | Whether the fit was successful |
+
+## Dependancies
+- Matplotlib
+- Odr_pack
+- Scipy
+- Numpy

@@ -85,3 +85,9 @@ Chi2:  37.2823543898539
 ### 10th Commit
 - Basic printer stuff added to run
 - Name changed to Fitting
+
+### Version 1.0 Finished
+Future features:
+- Auto fit function
+- More models
+- Gui integration
