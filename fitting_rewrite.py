@@ -262,8 +262,10 @@ class Fit:
         return self
     def _ols_fit(self) -> bool:
         '''
-        Basic OLS fitting function 
+        Basic OLS fitting function
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html
         To be used when x errors are insignificant compared to the y errors
+        True means success
         '''
         assert isinstance(self.dataset['params'], ndarray)
         result = least_squares(self.fmin, self.dataset['params'], args=(self.dataset['x_data'],
@@ -274,6 +276,8 @@ class Fit:
                                                                         self.diff))
         self.label = 'OLS'
         if not result.success:
+            if self.printer:
+                print('Fit failed')
             return False
         self.params = result.x
         chi2 = np.sum(result.fun**2)
@@ -290,4 +294,38 @@ class Fit:
             self.param_errors = np.zeros(self.nparams)
             if self.printer:
                 print('ERROR: Parameter errors could not be calculated')
+        return True
+    def _odr_fit(self) -> bool:
+        '''
+        Base ODR function
+        https://hugomvale.github.io/odrpack-python/reference/#odrpack.OdrResult
+        True means success
+        '''
+        self.label = 'ODR'
+        # Odr model uses x_data then params whereas least squares uses params then x_data so model is flipped
+        def odr_model(x_data: ndarray, params: ndarray) -> ndarray:
+            return self.model(params, x_data)
+        assert isinstance(self.dataset['x_error'], ndarray)
+        assert isinstance(self.dataset['y_error'], ndarray)
+        assert isinstance(self.dataset['y_data'], ndarray)
+        assert isinstance(self.dataset['x_data'], ndarray)
+        assert isinstance(self.dataset['params'], ndarray)
+        x_weight: ndarray | None = 1/self.dataset['x_error']**2 if self.raw_dataset['x_error'] is not None else None
+        y_weight: ndarray | None = 1/self.dataset['y_error']**2 if self.raw_dataset['y_error'] is not None else None
+        sol = odr_fit(odr_model,
+                      self.dataset['x_data'],
+                      self.dataset['y_data'],
+                      self.dataset['params'],
+                      weight_x=x_weight,
+                      weight_y=y_weight)
+        if not sol.success:
+            if self.printer:
+                print('Fit Failed')
+            return False
+        self.params = sol.beta
+        # odr pack finds the errors in the function so no matrix calculation is needed
+        self.param_errors = sol.sd_beta
+        chi2: float = sol.sum_square
+        assert isinstance(self.ndof, int)
+        self.chi2 = chi2 / self.ndof
         return True

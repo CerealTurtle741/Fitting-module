@@ -42,3 +42,6 @@ BUG FIXES:
 error array handling put in own function
 params taken out of data array function and into its own function
 ndof calculator function added
+
+6th Commit
+Base odr function added
