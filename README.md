@@ -31,7 +31,7 @@ Fit(
  printer: bool=True
  )
 ```
-| &nbsp;&nbsp;Parameter&nbsp;&nbsp;| Description <img width="775" height="1"> |
+| &nbsp;&nbsp;Parameter&nbsp;&nbsp;| Description <img width="750" height="1"> |
 |---|---|
 | x_data | X data inputted in any array like data type |
 | y_data | Y data inputted in any array like data type |
@@ -43,7 +43,7 @@ Fit(
 | fmin | A function to find the residuals of the data [default function integrated]
 | printer | Whether the function can print anything to the terminal |
 
-| &nbsp;&nbsp;&nbsp;Attribute&nbsp;&nbsp;&nbsp;&nbsp; | Description <img width="775" height="1"> |
+| &nbsp;&nbsp;&nbsp;Attribute&nbsp;&nbsp;&nbsp;&nbsp; | Description <img width="750" height="1"> |
 |---|---|
 | params | The parameters calculated from the fit.<br> In the default settings it is in the form [intercept, gradient] |
 | param_errors | The errors associated with its parameter |
