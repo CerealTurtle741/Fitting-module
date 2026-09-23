@@ -20,6 +20,7 @@ from typing import Callable
 from numpy.typing import ArrayLike
 from numpy import ndarray
 from numpy.linalg import LinAlgError
+import matplotlib.pyplot as plt
 
 def straight_line_model(params: ArrayLike, x_data: ArrayLike) -> ndarray:
     '''
@@ -27,14 +28,12 @@ def straight_line_model(params: ArrayLike, x_data: ArrayLike) -> ndarray:
     '''
     assert isinstance(params, ndarray) and isinstance(x_data, ndarray)
     return params[0] + x_data * params[1]
-
 def straight_line_diff(params: ArrayLike, x_data: ArrayLike) -> float:
     '''
     dy/dx = gradient
     '''
     assert isinstance(params, ndarray) and isinstance(x_data, ndarray)
     return params[1]
-
 def minimise(params: ndarray,
              x_data: ndarray,
              y_data: ndarray,
@@ -54,8 +53,6 @@ def minimise(params: ndarray,
     # if y_diff_total is 0 maybe from no errors recorded replace it with one to stop divide by zero errors
     y_diff_total = np.where(y_diff_total == 0, 1, y_diff_total)
     return (y_data - y_model) / y_diff_total
-
-
 
 class Fit:
     def __init__(self,
@@ -103,6 +100,7 @@ class Fit:
         self.label: None | str = None
 
     def run(self, method: str = 'ols'):
+        self.method = method
         start_time: float = time()
         if self._initial_checks():
             return self._failed_result()
@@ -119,10 +117,9 @@ class Fit:
             print(f'Method: {self.label}')
             print(f'Time taken: {time_taken}')
         if not self.success:
-            return self._failed_result
+            return self._failed_result()
         return self
-        
-
+    # Helper functions for run
     def _convert_data_to_arrays(self) -> bool:
         '''
         Self explanatory converting the data entries into numpy arrays 
@@ -332,3 +329,36 @@ class Fit:
         assert isinstance(self.ndof, int)
         self.chi2 = chi2 / self.ndof
         return True
+
+    # Plot function
+    def plot(self):
+        if self.success is None:
+            if self.printer:
+                print('ERROR: Data has not been fitted')
+            return 
+        if self.success is False:
+            if self.printer:
+                print('ERROR: Fit Failed')
+            return 
+        fig, ax = plt.subplots(figsize=(8,6))
+        assert isinstance(self.dataset['x_data'], ndarray) and isinstance(self.dataset['y_data'], ndarray) and isinstance(self.dataset['x_error'], ndarray) and isinstance(self.dataset['y_error'], ndarray) and isinstance(self.params, ndarray)
+        fmt = '.' if self.raw_dataset['x_error'] or self.raw_dataset['y_error'] is not None else 'o'
+        ax.errorbar(self.dataset['x_data'], self.dataset['y_data'], xerr=self.dataset['x_error'], yerr=self.dataset['y_error'],fmt=fmt,color='black',label='Data', zorder=3)
+        x_model: ndarray = np.linspace(min(self.dataset['x_data']), max(self.dataset['x_data']), 200) # pyright: ignore[reportUnknownVariableType]
+        y_model: ndarray = self.model(self.params, x_model) # pyright: ignore[reportUnknownArgumentType]
+        ax.plot(x_model, y_model, marker='', linestyle='-', label=f'Fit - {self.method.upper()}', zorder=2)
+        ax.grid(linestyle='--', zorder=1)
+        ax.legend()
+        self.fig, self.ax = fig, ax
+        plt.show()
+        return self
+
+x=[0.9,1.8,3.4,4.1,4.9]
+y=[2.3,4.1,5.7,8.2,9.5]
+dx=0.2
+dy=0.1
+p=[0,2]
+fit=Fit(x,y,p,dx,dy)
+fit.run()
+fit.plot()
+

@@ -74,3 +74,8 @@ Parameters:  [0.65966009 1.75507942]
 Chi2:  37.2823543898539
 - However the Chi2 is massive so greater testing is required to see if odr_pack is more viable speed wise
 - A great amount of logic would probably be required to see which method is better when an auto model is built
+
+8th Commit
+Bug in run fixed - return _failed_result (returns the function) -> return _failed_result()
+Added plot function
+- lots of # ignore added as the problems are purely pylance not allowing unknown types
