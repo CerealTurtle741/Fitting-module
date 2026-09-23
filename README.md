@@ -27,3 +27,9 @@ Parameter check function
 Fixed type annotations
 error negativity check added : True means failed
 Function to check if the model is passed the right amount of parameters added : True means failed
+
+4th Commit
+Full type annotations added some parts fixed with VS code inbuilt Fix function
+ndof (number of degrees of freedom) warning added
+Initial checks function added to put all checks into one place 
+NOTE: When using assert within the class do not use plain assert use assert isinstance(variable, type) to prevent errors from triggering due to truth values
