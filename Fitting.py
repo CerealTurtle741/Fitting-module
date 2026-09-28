@@ -111,7 +111,7 @@ class Fit:
             print(f'Params: {self.params}')
             print(f'Param errrors: {self.param_errors}')
             print(f'Reduced Chi2: {self.chi2}')
-
+        ## DO NOT REMOVE return self it WILL BREAK THE CODE
         return self
     # Helper functions for run
     def _convert_data_to_arrays(self) -> bool:
