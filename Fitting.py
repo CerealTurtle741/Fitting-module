@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import least_squares 
 from odrpack import odr_fit
 from time import time
-from typing import Callable
+from collections.abc import Callable
 from numpy.typing import ArrayLike
 from numpy import ndarray
 from numpy.linalg import LinAlgError
