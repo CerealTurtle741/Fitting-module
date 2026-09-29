@@ -5,10 +5,12 @@
 - Adjusted to follow PEP8 better
 - Changed all error messages to raise exceptions instead
 - Changelog moved around so it is ordered with most recent changes at top
+
 Future features:
 - Auto fit function
 - Sympy integration for models 
 - Gui integration
+
 Notes:
 - Many changes have happened between the last commit but have been small bugfixes or changes to the description on github
 - MIT license was added a while back shortly after 1.0 was commited
