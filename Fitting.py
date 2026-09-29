@@ -98,6 +98,7 @@ class Fit:
         # Values for plotting
         self.fig: None | Figure = None
         self.ax: None | Axes = None
+    
     # Run function
     def run(self, method: str = 'ols') -> Self:
         self.method: str = method
