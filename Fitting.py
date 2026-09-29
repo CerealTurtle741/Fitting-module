@@ -7,6 +7,9 @@ from numpy.typing import ArrayLike
 from numpy import ndarray
 from numpy.linalg import LinAlgError
 import matplotlib.pyplot as plt
+from typing import Self
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 
 def straight_line_model(params: ArrayLike, x_data: ArrayLike) -> ndarray:
     '''
@@ -85,15 +88,15 @@ class Fit:
         self.label: None | str = None
 
         # Values for plotting
-        self.fig = None
-        self.ax = None
+        self.fig: None | Figure = None
+        self.ax: None | Axes = None
     # Run function
-    def run(self, method: str = 'ols'):
-        self.method = method
+    def run(self, method: str = 'ols') -> Self:
+        self.method: str = method
         start_time: float = time()
         if self._initial_checks():
             return self._failed_result()
-        method_list = {'ols':self._ols_fit, 'odr':self._odr_fit}
+        method_list: dict[str, Callable[[], bool]] = {'ols':self._ols_fit, 'odr':self._odr_fit}
         if method.lower() not in method_list:
             if self.printer:
                 print(f'ERROR: method = {method} is not a valid method')
@@ -101,7 +104,7 @@ class Fit:
             return self._failed_result()
         self.success = method_list[method]()
         end_time: float = time()
-        time_taken = end_time - start_time
+        time_taken: float = end_time - start_time
         if self.printer:
             print(f'Method: {self.label}')
             print(f'Time taken: {time_taken}')
@@ -170,10 +173,10 @@ class Fit:
         '''
         assert isinstance(self.dataset['x_data'], ndarray) and isinstance(self.dataset['y_data'], ndarray) and isinstance(self.dataset['x_error'], ndarray) and isinstance(self.dataset['y_error'], ndarray) and isinstance(self.dataset['params'], ndarray)
         try:
-            x_data_length = len(self.dataset['x_data'])
-            y_data_length = len(self.dataset['y_data'])
-            x_error_length = len(self.dataset['x_error'])
-            y_error_length = len(self.dataset['y_error'])
+            x_data_length: int = len(self.dataset['x_data'])
+            y_data_length: int = len(self.dataset['y_data'])
+            x_error_length: int = len(self.dataset['x_error'])
+            y_error_length: int = len(self.dataset['y_error'])
         except Exception as e:
             print(f'ERROR: cannot take length of dataset - {e}')
             return True
@@ -252,7 +255,7 @@ class Fit:
             return True
         self._ndof_warning()
         return False
-    def _failed_result(self):
+    def _failed_result(self) -> Self:
         assert isinstance(self.nparams, int)
         self.success = False
         self.params = np.full(self.nparams, np.nan)
@@ -324,7 +327,7 @@ class Fit:
         self.chi2 = chi2 / self.ndof
         return True
     # Plot function
-    def plot(self):
+    def plot(self) -> tuple[Figure, Axes] | tuple[None, None]:
         '''
         Plot function for if the data has been successfully fitted 
         '''
@@ -354,7 +357,7 @@ class Fit:
         # but you MUST remember to call it outside the function
         return fig, ax
     # Save function
-    def save(self, file_name: str, file_type: str = 'png'):
+    def save(self, file_name: str, file_type: str = 'png') -> None:
         '''
         save function for saving the figure produced by plot()
         the file name must be inputted 
