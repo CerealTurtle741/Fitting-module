@@ -1,7 +1,11 @@
 # Fitting-module Changelog
 
+## 30/09/26
+### Version 1.1.1
+- Added __repr__ function
+
 ## 29/09/26
-### Version 1.1
+### Version 1.1.0
 - Adjusted to follow PEP8 better
 - Changed all error messages to raise exceptions instead
 - Changelog moved around so it is ordered with most recent changes at top
@@ -16,7 +20,7 @@ Notes:
 - MIT license was added a while back shortly after 1.0 was commited
 
 ## 23/09/26
-### Version 1.0 Finished
+### Version 1.0.0 Finished
 Future features:
 - Auto fit function
 - More models

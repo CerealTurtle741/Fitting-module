@@ -511,6 +511,26 @@ class Fit:
             raise RuntimeError('Fit must be completed before accessing Chi2')
         return self._chi2
 
+    def __repr__(self) -> str:
+        args: list[str] = [
+            f'x_data={self.raw_dataset['x_data']!r}',
+            f'y_data={self.raw_dataset['y_data']!r}',
+            f'initial_params={self.raw_dataset['params']!r}']
+        # Only add non default values to the repr
+        if self.raw_dataset['x_error'] is not None:
+            args.append(f'x_error={self.raw_dataset['x_error']!r}')
+        if self.raw_dataset['y_error'] is not None:
+            args.append(f'y_error={self.raw_dataset['y_error']!r}')
+        if self.model is not straight_line_model:
+            args.append(f'model={self.model.__name__}')
+        if self.diff is not straight_line_diff:
+            args.append(f'diff={self.diff.__name__}')
+        if self.fmin is not minimise:
+            args.append(f'fmin={self.fmin.__name__}')
+        if self.printer is not True:
+            args.append(f'printer={self.printer}')
+        return f'{type(self).__name__}({', '.join(args)})'
+
 
 class FitError(Exception):
     """An exception for when the fit fails"""
