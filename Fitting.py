@@ -345,7 +345,7 @@ class Fit:
             self._param_errors = np.sqrt(np.diag(covariance))
         except LinAlgError:
             self._param_errors = np.zeros(self.nparams)
-            warn('Parameter errors could not be calculated')
+            warn('Parameter errors could not be calculated', stacklevel=2)
 
     def _odr_fit(self) -> None:
         '''
@@ -368,9 +368,9 @@ class Fit:
         x_weight: ndarray | None = None
         y_weight: ndarray | None = None
         if self.raw_dataset['x_error'] is None:
-            warn('OLS model should be used as x values are exact')
+            warn('OLS model should be used as x values are exact', stacklevel=2)
         elif all(x_error) == 0:
-            warn('OLS model should be used as x values are exact')
+            warn('OLS model should be used as x values are exact', stacklevel=2)
         else:
             smallest_x_error: float = min([error for error in x_error if not error == 0])
             # Replaces any zero values with the smallest error
@@ -379,7 +379,7 @@ class Fit:
             x_weight = 1/x_error**2
 
         if self.raw_dataset['y_error'] is None:
-            warn('No Y errors provided')
+            warn('No Y errors provided', stacklevel=2)
         else:
             if 0 in y_error:
                 raise FitError(
