@@ -3,6 +3,7 @@
 ## 02/09/26
 ### Version 1.2.0
 - Sympy integration added
+- Version system changed to be more consistent with the new system
 
 ## 30/09/26
 ### Version 1.1.1
@@ -30,19 +31,19 @@ Future features:
 - More models
 - Gui integration
 
-### 10th Commit
+### Version 0.4.1
 - Basic printer stuff added to run
 - Name changed to Fitting
 
-### 9th Commit
+### Version 0.4.0
 - Save function added
 
-### 8th Commit
+### Version 0.3.0
 - Bug in run fixed - return _failed_result (returns the function) -> return _failed_result()
 - Added plot function
 - Some # ignore added as the problems are purely pylance not allowing unknown types
 
-### 7th Commit
+### Version 0.2.1
 - assert declarations tidied up to only take one line in their respective functions
 - run function created
 - INTERESTING NOTE:
@@ -73,10 +74,10 @@ Chi2:  37.2823543898539
 - However the Chi2 is massive so greater testing is required to see if odr_pack is more viable speed wise
 - A great amount of logic would probably be required to see which method is better when an auto model is built
 
-### 6th Commit
+### Version 0.2.0
 Base odr function added
 
-### 5th Commit
+### Version 0.1.0
 - Base ols function added
 - assert bug fixed in _length_check and _ndof_warning
 - BUG FIXES:
@@ -84,37 +85,28 @@ Base odr function added
   - params taken out of data array function and into its own function
   - ndof calculator function added
 
-### 4th Commit
+### Version 0.0.4
 - Full type annotations added some parts fixed with VS code inbuilt Fix function
 - ndof (number of degrees of freedom) warning added
 - Initial checks function added to put all checks into one place 
 - NOTE: When using assert within the class do not use plain assert use assert isinstance(variable, type) to prevent errors from triggering due to truth values
 
-
-
-
-
-
-
-
-
-
 ## 22/09/26
-### 3rd Commit
+### Version 0.0.3
 - Error message added to length check function
 - Parameter check function
 - Fixed type annotations
 - error negativity check added : True means failed
 - Function to check if the model is passed the right amount of parameters added : True means failed
 
-### 2nd Commit
+### Version 0.0.2
 - Function to convert data to arrays created : True means failed
 - Data restructured to be inside a dictionary
 - Length checker added : True means failed
 - Error converter added 
 
 ## 21/09/26:
-### 1st commit:
+### Version 0.0.1
 - Class to perform a fit of a set of data
 - The aim is to use scipys least_squares function to find the parameters, errors and chi2 of a set of data
 - Least squares can be used for two cases when the errors on x are insignificant (small) compared to y or when no errors are given
@@ -123,6 +115,3 @@ Base odr function added
   - system to be created later 
 - To start making the class all the variables will be turned into global variables to be used in all functions
 - Firstly a base straight line function was created and a function to find the residuals 
-
-
-
