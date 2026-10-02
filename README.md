@@ -12,6 +12,7 @@ A fitting module for finding the parameters from a set of data and its errors. I
 2. In the Fit class add the x and y data and the initial parameter guess
 3. *[Optional]*: add the x and y errors
 4. A straight line model is built in so if a custom model is required the model and its derivative must be defined first
+   - The model may also be defined as a string [*sympy module required*]
 5. The model defaults to printing any error messages and a couple other infomation to the terminal to turn this off set printer to False
 6. On the variable that the Fit class was assigned to call the run function (e.g. fit.run() if the odr method is required input it into the brackets of the run function)
 7. For plotting and saving figures call the functions in the same way that the run function was called (for the save function remember to add the filename as a string into the save function)
@@ -58,3 +59,4 @@ Fit(
 - Odr_pack
 - Scipy
 - Numpy
+- Sympy (for string based models)

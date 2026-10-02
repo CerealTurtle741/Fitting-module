@@ -1,5 +1,9 @@
 # Fitting-module Changelog
 
+## 02/09/26
+### Version 1.2.0
+- Sympy integration added
+
 ## 30/09/26
 ### Version 1.1.1
 - Added __repr__ function

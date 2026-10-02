@@ -531,8 +531,11 @@ class Fit:
         if self.raw_dataset['y_error'] is not None:
             args.append(f'y_error={self.raw_dataset['y_error']!r}')
         if self.model is not straight_line_model:
-            args.append(f'model={self.model.__name__}')
-        if self.diff is not straight_line_diff:
+            if isinstance(self.model, str):
+                args.append(f'model={self.model}')
+            if callable(self.model):
+                args.append(f'model={self.model.__name__}')
+        if self.diff is not straight_line_diff and callable(self.diff):
             args.append(f'diff={self.diff.__name__}')
         if self.fmin is not minimise:
             args.append(f'fmin={self.fmin.__name__}')
