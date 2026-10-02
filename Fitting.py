@@ -470,7 +470,8 @@ class Fit:
         self.fig, self.ax = fig, ax
         # Remember to actually show the plot 
         # plt.show() 
-        # dont call plt.show() in the function otherwise it prevents any changes from being made outside the function
+        # dont call plt.show() in the function
+        # it prevents any changes from being made outside the function
         # but you MUST remember to call it outside the function
         return fig, ax
     
