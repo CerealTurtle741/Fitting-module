@@ -1,6 +1,11 @@
 # Fitting-module Changelog
 
-## 02/09/26
+## 07/10/26
+### Version 1.2.1
+- Gui framework built
+- fitmodels moved into its own module
+
+## 02/10/26
 ### Version 1.2.0
 - Sympy integration added
 - Version system changed to be more consistent with the new system
