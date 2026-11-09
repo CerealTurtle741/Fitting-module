@@ -341,7 +341,7 @@ class Fit:
         self.label = 'OLS'
         if not result.success:
             raise FitError(f'Fit Failed - {result.message}')
-        
+        self.success = True
         self._params = result.x
         chi2 = np.sum(result.fun**2)
         reduced_chi2: float = chi2 / self.ndof
@@ -406,7 +406,8 @@ class Fit:
             weight_y=y_weight
             )
         if not sol.success:
-            raise FitError(f'Fit faile - {sol.stopreason}')
+            raise FitError(f'Fit failed - {sol.stopreason}')
+        self.success = True
         self._params = sol.beta
         # odr pack finds the errors in the function 
         # so no matrix calculation is needed
