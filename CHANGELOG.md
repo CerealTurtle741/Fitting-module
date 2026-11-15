@@ -1,6 +1,17 @@
 # Fitting-module Changelog
 
-## 02/09/26
+## 15/11/26
+### Version 1.3.0
+- Data moved away from dictionaries and into a dataclass
+- Moved fitted line out of plot so graphs can be plotted from the data inputted without fitting
+  - In future plot should be moved out into its own function instead of being in the class
+
+## 07/10/26
+### Version 1.2.1
+- Gui framework built
+- fitmodels moved into its own module
+
+## 02/10/26
 ### Version 1.2.0
 - Sympy integration added
 - Version system changed to be more consistent with the new system
