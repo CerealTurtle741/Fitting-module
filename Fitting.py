@@ -347,7 +347,8 @@ class Fit:
             )
         self.success = sol.success
         if not sol.success:
-            raise FitError(f'Fit faile - {sol.stopreason}')
+            raise FitError(f'Fit failed - {sol.stopreason}')
+        self.success = True
         self._params = sol.beta
         # odr pack finds the errors in the function 
         # so no matrix calculation is needed
